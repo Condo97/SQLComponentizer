@@ -28,6 +28,14 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
