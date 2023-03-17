@@ -19,7 +19,7 @@ repositories {
 }
 
 group = 'com.github.condo97'
-version = '1.0'
+version = '1.0.0'
 
 dependencies {
     // Use JUnit Jupiter for testing.
@@ -37,6 +37,7 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+// This enabled a bunch more publishing tasks when run the first time
 publishing {
     publications {
         mavenJava(MavenPublication) {
