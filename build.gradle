@@ -12,24 +12,14 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.github.Condo97'
-version = '1.0'
-
-jar {
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    destinationDirectory = file("out")
-    archiveBaseName = "SQLComponentizer"
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
 repositories {
     // Use Maven Central for resolving dependencies.
+    mavenLocal()
     mavenCentral()
 }
+
+group = 'com.github.condo97'
+version = '1.0'
 
 dependencies {
     // Use JUnit Jupiter for testing.
@@ -45,4 +35,12 @@ dependencies {
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
