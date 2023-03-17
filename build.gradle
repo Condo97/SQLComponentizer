@@ -18,7 +18,7 @@ jar {
     }
 
     destinationDirectory = file("out")
-    archiveBaseName = "WriteSmith_Server"
+    archiveBaseName = "SQLComponentizer"
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
