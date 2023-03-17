@@ -12,6 +12,9 @@ plugins {
     id 'maven-publish'
 }
 
+group = 'com.github.Condo97'
+version = '1.0'
+
 jar {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
