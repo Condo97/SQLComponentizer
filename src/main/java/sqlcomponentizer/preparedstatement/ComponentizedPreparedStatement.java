@@ -6,25 +6,24 @@ import sqlcomponentizer.preparedstatement.component.PSPlaceholderComponent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComponentizedPreparedString implements PSBuildable {
+public class ComponentizedPreparedStatement implements PSConnectable {
     // Common variables
-    Connection conn;
     List<PSComponent> components;
+    Boolean getGeneratedKeys;
 
-    public ComponentizedPreparedString(Connection conn, List<PSComponent> components) {
-        this.conn = conn;
+    public ComponentizedPreparedStatement(List<PSComponent> components) {
         this.components = components;
+
+        getGeneratedKeys = false;
     }
 
-    public Connection getConn() {
-        return conn;
-    }
-
-    public void setConn(Connection conn) {
-        this.conn = conn;
+    public ComponentizedPreparedStatement(List<PSComponent> components, Boolean getGeneratedKeys) {
+        this.components = components;
+        this.getGeneratedKeys = getGeneratedKeys;
     }
 
     public List<PSComponent> getComponents() {
@@ -64,7 +63,7 @@ public class ComponentizedPreparedString implements PSBuildable {
     @Override
     public PreparedStatement connect(Connection connection) throws SQLException {
         // Setup PS with prepared statement string
-        PreparedStatement ps = connection.prepareStatement(getPreparedStatementString());
+        PreparedStatement ps = connection.prepareStatement(getPreparedStatementString(), getGeneratedKeys ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
 
         // Get ordered placeholders
         List<Object> orderedPlaceholders = getOrderedPlaceholderValues();
@@ -76,5 +75,10 @@ public class ComponentizedPreparedString implements PSBuildable {
 
         // Return the PS!
         return ps;
+    }
+
+    @Override
+    public String toString() {
+        return getPreparedStatementString() + " with placeholders " + getOrderedPlaceholderValues();
     }
 }

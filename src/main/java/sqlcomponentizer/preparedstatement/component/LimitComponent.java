@@ -19,7 +19,6 @@ public class LimitComponent implements PSComponent {
         this.amount = amount;
     }
 
-
     @Override
     public String getComponentString() {
         // Return empty string if amount is null or 0 or below

@@ -5,7 +5,26 @@ import java.util.Map;
 
 public class DBDeserializer {
 
-    public static void fillObjectFromMap(Map<String, Object> tableMap, Object dbObject) throws DBSerializerException, IllegalAccessException {
+    public static void setPrimaryKey(Object dbObject, Object newPrimaryKey) throws DBSerializerException, IllegalAccessException, DBSerializerPrimaryKeyMissingException {
+        // Check if DBSerializable
+        DBSerializationValidator.checkSerializable(dbObject);
+
+        // Loop through fields in dbObject until one where primaryKey is true is found, then set it to the object
+        for (Field field: dbObject.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+
+            if (field.isAnnotationPresent(DBColumn.class)) {
+                if (field.getAnnotation(DBColumn.class).primaryKey()) {
+                    field.set(dbObject, newPrimaryKey);
+                    return;
+                }
+            }
+        }
+
+        throw new DBSerializerPrimaryKeyMissingException("Could not find primary key when attempting to setPrimaryKey in DBDeserializer");
+    }
+
+    public static void fillObjectFromMap(Object dbObject, Map<String, Object> tableMap) throws DBSerializerException, IllegalAccessException {
         // Check if DBSerializable
         DBSerializationValidator.checkSerializable(dbObject);
 

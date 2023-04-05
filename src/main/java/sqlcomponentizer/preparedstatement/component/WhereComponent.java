@@ -22,7 +22,7 @@ public class WhereComponent implements PSPlaceholderComponent {
     }
 
     public void addCondition(PSComponent condition) {
-        this.conditions.add(condition);
+        conditions.add(condition);
     }
 
     public void addConditions(List<PSComponent> conditions) {
