@@ -1,12 +1,12 @@
-package sqlcomponentizer.preparedstatement.component.aggregatecolumns;
+package sqlcomponentizer.preparedstatement.component.columns.aggregate;
 
 import sqlcomponentizer.preparedstatement.utility.ParenthesizedString;
 
-public class Sum extends ParenthesizedString {
+public class Avg extends ParenthesizedString {
 
-    private final String action = "Sum";
+    private final String action = "AVG";
 
-    public Sum(String column) {
+    public Avg(String column) {
         super(column);
     }
 

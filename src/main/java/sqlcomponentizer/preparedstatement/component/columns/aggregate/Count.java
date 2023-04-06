@@ -1,4 +1,4 @@
-package sqlcomponentizer.preparedstatement.component.aggregatecolumns;
+package sqlcomponentizer.preparedstatement.component.columns.aggregate;
 
 import sqlcomponentizer.preparedstatement.utility.ParenthesizedString;
 
