@@ -4,6 +4,7 @@ public final class SQLTokens {
     public static final String SPACE = " ";
     public static final String COLUMN_SEPARATOR = ", ";
     public static final String PLACEHOLDER = "?";
+    public static final String ALL = "*";
     public static final String DOT = ".";
     public static final String AND = "AND";
     public static final String OR = "OR";

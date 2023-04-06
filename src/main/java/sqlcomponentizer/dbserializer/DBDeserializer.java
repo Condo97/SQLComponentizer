@@ -1,6 +1,7 @@
 package sqlcomponentizer.dbserializer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 public class DBDeserializer {
@@ -22,6 +23,14 @@ public class DBDeserializer {
         }
 
         throw new DBSerializerPrimaryKeyMissingException("Could not find primary key when attempting to setPrimaryKey in DBDeserializer");
+    }
+
+    public static Object getObjectFromMap(Class targetDBClass, Map<String, Object> tableMap) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DBSerializerException {
+        Object dbObject = targetDBClass.getConstructor().newInstance();
+
+        fillObjectFromMap(dbObject, tableMap);
+
+        return dbObject;
     }
 
     public static void fillObjectFromMap(Object dbObject, Map<String, Object> tableMap) throws DBSerializerException, IllegalAccessException {

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SelectComponent implements PSComponent {
-    private final String ALL_COLUMN_SYMBOL = "*";
     private final String action = "SELECT";
     private List<String> columns;
 
@@ -44,7 +43,7 @@ public class SelectComponent implements PSComponent {
             commaSeparatedColumns.delete(commaSeparatedColumns.length() - SQLTokens.COLUMN_SEPARATOR.length(), commaSeparatedColumns.length());
         } else {
             // If no columns specified, use the ALL_COLUMN_SYMBOL
-            commaSeparatedColumns.append(ALL_COLUMN_SYMBOL);
+            commaSeparatedColumns.append(SQLTokens.ALL);
         }
 
         return action + SQLTokens.SPACE + commaSeparatedColumns;
