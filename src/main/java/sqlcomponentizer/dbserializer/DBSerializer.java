@@ -1,7 +1,11 @@
 package sqlcomponentizer.dbserializer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DBSerializer {
@@ -51,25 +55,63 @@ public class DBSerializer {
         return dbClass.getAnnotation(DBSerializable.class).tableName();
     }
 
-    public static Map<String, Object> getTableMap(Object dbObject) throws IllegalAccessException, DBSerializerException {
+    public static Map<String, Object> getTableMap(Object dbObject) throws IllegalAccessException, DBSerializerException, InvocationTargetException {
         // Check if DBSerializable
         DBSerializationValidator.checkSerializable(dbObject);
 
-        Class<?> tableClass = dbObject.getClass();
-        Map<String, Object> map = new HashMap<>();
+        // Create table map
+        Map<String, Object> tableMap = new HashMap<>();
 
-        // Check each declared field for DBColumn annotation and get the name as key mapped to the field's object for each
-        for (Field field: tableClass.getDeclaredFields()) {
+        // Check each declared field for DBColumn annotation and map its name property the key to the field's object
+        for (Field field: dbObject.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             if (field.isAnnotationPresent(DBColumn.class)) {
                 String key = field.getAnnotation(DBColumn.class).name();
                 Object value = field.get(dbObject);
 
-                map.put(key, value);
+                // If value is not null and is enum, set the value to the value from DBGetterValue
+                if (value != null && value.getClass().isEnum()) {
+                    value = getDBEnumGetterValue(value);
+                }
+
+                // Put the key and value in tableMap
+                tableMap.put(key, value);
             }
         }
 
-        return map;
+        return tableMap;
+    }
+
+    public static List<Object> getSubObjects(Object dbObject) throws DBSerializerException, IllegalAccessException {
+        // Check if DBSerializable
+        DBSerializationValidator.checkSerializable(dbObject);
+
+        // Create sub object list
+        List<Object> subObjects = new ArrayList<>();
+
+        // Check each declared field for DBSubObject annotation and add each field's object to the subObjects list
+        for (Field field: dbObject.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            if (field.isAnnotationPresent(DBSubObject.class)) {
+                subObjects.add(field.get(dbObject));
+            }
+        }
+
+        return subObjects;
+    }
+
+    private static Object getDBEnumGetterValue(Object toGetObject) throws InvocationTargetException, IllegalAccessException {
+        // Loop through methods in enum until DBEnumGetter annotation is found
+        System.out.println("IS ENUM");
+        for (Method enumMethod: toGetObject.getClass().getDeclaredMethods()) {
+            // If getter annotation is present on a method, use the value returned by that method as the value
+            if (enumMethod.isAnnotationPresent(DBEnumGetter.class)) {
+                System.out.println("RETURNING: " + enumMethod.invoke(toGetObject));
+                return enumMethod.invoke(toGetObject);
+            }
+        }
+
+        return null;
     }
 
 }

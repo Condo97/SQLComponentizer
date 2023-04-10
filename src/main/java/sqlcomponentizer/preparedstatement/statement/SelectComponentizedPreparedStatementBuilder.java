@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SelectComponentizedPreparedStatementBuilder implements ComponentizedPreparedStatementBuilder {
+public class  SelectComponentizedPreparedStatementBuilder implements ComponentizedPreparedStatementBuilder {
     // This class basically assures that the components are in order for the SimplePreparedStatement and acts as a builder
 
     private SelectComponent selectComponent;

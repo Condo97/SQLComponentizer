@@ -1,6 +1,7 @@
 package sqlcomponentizer;
 
 import sqlcomponentizer.preparedstatement.PSConnectable;
+import sqlcomponentizer.preparedstatement.PSConnectableWithGeneratedKeys;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,8 +29,8 @@ public class DBClient {
         }
     }
 
-    public static List<Map<String, Object>> updateReturnGeneratedKeys(Connection connection, PSConnectable psConnectable) throws SQLException {
-        try (PreparedStatement ps = psConnectable.connect(connection)) {
+    public static List<Map<String, Object>> updateReturnGeneratedKeys(Connection connection, PSConnectableWithGeneratedKeys psConnectable) throws SQLException {
+        try (PreparedStatement ps = psConnectable.connectGenerateKeys(connection, true)) {
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();

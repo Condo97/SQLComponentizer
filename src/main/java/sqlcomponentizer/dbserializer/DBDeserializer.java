@@ -2,6 +2,7 @@ package sqlcomponentizer.dbserializer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 public class DBDeserializer {
@@ -25,7 +26,7 @@ public class DBDeserializer {
         throw new DBSerializerPrimaryKeyMissingException("Could not find primary key when attempting to setPrimaryKey in DBDeserializer");
     }
 
-    public static Object getObjectFromMap(Class targetDBClass, Map<String, Object> tableMap) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DBSerializerException {
+    public static Object createObjectFromMap(Class targetDBClass, Map<String, Object> tableMap) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DBSerializerException {
         Object dbObject = targetDBClass.getConstructor().newInstance();
 
         fillObjectFromMap(dbObject, tableMap);
@@ -33,7 +34,7 @@ public class DBDeserializer {
         return dbObject;
     }
 
-    public static void fillObjectFromMap(Object dbObject, Map<String, Object> tableMap) throws DBSerializerException, IllegalAccessException {
+    public static void fillObjectFromMap(Object dbObject, Map<String, Object> tableMap) throws DBSerializerException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
         // Check if DBSerializable
         DBSerializationValidator.checkSerializable(dbObject);
 
@@ -62,11 +63,33 @@ public class DBDeserializer {
                                     throw new IllegalArgumentException();
                         }
 
+                        // If field is an enum, set the object to set to a created enum
+                        if (field.getType().isEnum())
+                            objectToSet = createEnumWithDBEnumSetter(field, objectToSet);
+
                         field.set(dbObject, objectToSet);
+
                         break;
                     }
                 }
             }
         }
     }
+
+    private static Object createEnumWithDBEnumSetter(Field field, Object... parameterObjects) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
+        // Use the DBEnumSetter if the field's type is enum
+        if (field.getType().isEnum()) {
+            // Loop through methods of the enum until DBEnumSetter is found
+            for (Method enumMethod: field.getType().getDeclaredMethods()) {
+                // If the annotation is found, set the value using the annotated method
+
+                if (enumMethod.isAnnotationPresent(DBEnumSetter.class)) {
+                    return enumMethod.invoke(null, parameterObjects);
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

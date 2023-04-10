@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComponentizedPreparedStatement implements PSConnectable {
+public class ComponentizedPreparedStatement implements PSConnectableWithGeneratedKeys {
     // Common variables
     List<PSComponent> components;
     Boolean getGeneratedKeys;
@@ -62,8 +62,13 @@ public class ComponentizedPreparedStatement implements PSConnectable {
 
     @Override
     public PreparedStatement connect(Connection connection) throws SQLException {
+        return connectGenerateKeys(connection, false);
+    }
+
+    @Override
+    public PreparedStatement connectGenerateKeys(Connection connection, boolean shouldGenerateKeys) throws SQLException {
         // Setup PS with prepared statement string
-        PreparedStatement ps = connection.prepareStatement(getPreparedStatementString(), getGeneratedKeys ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
+        PreparedStatement ps = connection.prepareStatement(getPreparedStatementString(), shouldGenerateKeys ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS);
 
         // Get ordered placeholders
         List<Object> orderedPlaceholders = getOrderedPlaceholderValues();
