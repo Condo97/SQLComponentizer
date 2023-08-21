@@ -1,5 +1,6 @@
 package sqlcomponentizer.preparedstatement.component;
 
+import sqlcomponentizer.dbserializer.DBSerializer;
 import sqlcomponentizer.preparedstatement.SQLTokens;
 import sqlcomponentizer.preparedstatement.component.condition.SQLOperators;
 

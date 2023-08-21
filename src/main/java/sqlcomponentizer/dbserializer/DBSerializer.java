@@ -26,9 +26,9 @@ public class DBSerializer {
         throw new DBSerializerPrimaryKeyMissingException("No primary key found when trying to getPrimaryKey in DBSerializer!");
     }
 
-    public static String getPrimaryKeyName(Object dbObject) throws DBSerializerException, IllegalAccessException, DBSerializerPrimaryKeyMissingException {
-        DBSerializationValidator.checkSerializable(dbObject);
-        Field[] var1 = dbObject.getClass().getDeclaredFields();
+    public static String getPrimaryKeyName(Class<?> dbClass) throws DBSerializerException, DBSerializerPrimaryKeyMissingException {
+        DBSerializationValidator.checkSerializable(dbClass);
+        Field[] var1 = dbClass.getDeclaredFields();
         int var2 = var1.length;
 
         for(int var3 = 0; var3 < var2; ++var3) {
@@ -41,11 +41,6 @@ public class DBSerializer {
         }
 
         throw new DBSerializerPrimaryKeyMissingException("No primary key found when trying to getPrimaryKey in DBSerializer!");
-    }
-
-    public static String getTableName(Object dbObject) throws DBSerializerException {
-        if (dbObject == null) throw new DBSerializerException("Cannot get table name of null object " + dbObject);
-        return getTableName(dbObject.getClass());
     }
 
     public static String getTableName(Class<?> dbClass) throws DBSerializerException {
@@ -102,11 +97,9 @@ public class DBSerializer {
 
     private static Object getDBEnumGetterValue(Object toGetObject) throws InvocationTargetException, IllegalAccessException {
         // Loop through methods in enum until DBEnumGetter annotation is found
-        System.out.println("IS ENUM");
         for (Method enumMethod: toGetObject.getClass().getDeclaredMethods()) {
             // If getter annotation is present on a method, use the value returned by that method as the value
             if (enumMethod.isAnnotationPresent(DBEnumGetter.class)) {
-                System.out.println("RETURNING: " + enumMethod.invoke(toGetObject));
                 return enumMethod.invoke(toGetObject);
             }
         }

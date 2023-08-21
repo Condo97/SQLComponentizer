@@ -8,6 +8,7 @@ public class DBSerializationValidator {
     }
 
     public static void checkSerializable(Class c) throws DBSerializerException {
+        if (c == null) throw new DBSerializerException("Cannot serialize null class " + c);
         if (!c.isAnnotationPresent(DBSerializable.class)) throw new DBSerializerException("Cannot serialize object " + c);
     }
 

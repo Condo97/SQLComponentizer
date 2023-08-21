@@ -26,8 +26,16 @@ public class DBDeserializer {
         throw new DBSerializerPrimaryKeyMissingException("Could not find primary key when attempting to setPrimaryKey in DBDeserializer");
     }
 
-    public static Object createObjectFromMap(Class targetDBClass, Map<String, Object> tableMap) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DBSerializerException {
-        Object dbObject = targetDBClass.getConstructor().newInstance();
+//    public static Object createObjectFromMap(Class targetDBClass, Map<String, Object> tableMap) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DBSerializerException {
+//        Object dbObject = targetDBClass.getConstructor().newInstance();
+//
+//        fillObjectFromMap(dbObject, tableMap);
+//
+//        return dbObject;
+//    }
+
+    public static <T> T createObjectFromMap(Class<T> targetDBClass, Map<String, Object> tableMap) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DBSerializerException {
+        T dbObject = targetDBClass.getConstructor().newInstance();
 
         fillObjectFromMap(dbObject, tableMap);
 

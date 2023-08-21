@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import sqlcomponentizer.preparedstatement.ComponentizedPreparedStatement;
 import sqlcomponentizer.preparedstatement.component.condition.SQLOperators;
+import sqlcomponentizer.preparedstatement.statement.DeleteComponentizedPreparedStatementBuilder;
 import sqlcomponentizer.preparedstatement.statement.InsertIntoComponentizedPreparedStatementBuilder;
 import sqlcomponentizer.preparedstatement.statement.SelectComponentizedPreparedStatementBuilder;
 import sqlcomponentizer.preparedstatement.statement.UpdateComponentizedPreparedStatementBuilder;
@@ -46,4 +47,16 @@ public class Tests {
         System.out.println(cps);
 
     }
+
+    @Test
+    @DisplayName("Testing DeleteComponentizedPreparedStatementBuilder")
+    public void testDeleteComponentizedPreparedStatementBuilder() {
+        ComponentizedPreparedStatement cps = DeleteComponentizedPreparedStatementBuilder
+                .forTable("Chat")
+                .where("chat_id", SQLOperators.EQUAL, 5)
+                .build();
+
+        System.out.println(cps);
+    }
+
 }

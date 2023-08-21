@@ -68,7 +68,7 @@ public class  SelectComponentizedPreparedStatementBuilder implements Componentiz
     /* WHERE */
 
     public SelectComponentizedPreparedStatementBuilder where(String columnName, SQLOperators operator, Object value) {
-        whereComponent.addCondition(new SQLOperatorCondition(columnName, operator, value));
+//        whereComponent.addCondition(new SQLOperatorCondition(columnName, operator, value)); TODO: Omg what is this why was this here
         return where(Map.of(
                 columnName, value
         ), operator);
