@@ -1,5 +1,7 @@
 package sqlcomponentizer.dbserializer;
 
+import sqlcomponentizer.dbserializer.exception.DBSerializerException;
+
 public class DBSerializationValidator {
 
     public static void checkSerializable(Object o) throws DBSerializerException {

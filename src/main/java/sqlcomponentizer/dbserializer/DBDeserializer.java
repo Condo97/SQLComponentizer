@@ -1,5 +1,9 @@
 package sqlcomponentizer.dbserializer;
 
+import sqlcomponentizer.dbserializer.exception.DBDeserializerForeignKeyMissingException;
+import sqlcomponentizer.dbserializer.exception.DBSerializerException;
+import sqlcomponentizer.dbserializer.exception.DBDeserializerPrimaryKeyMissingException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -7,23 +11,44 @@ import java.util.Map;
 
 public class DBDeserializer {
 
-    public static void setPrimaryKey(Object dbObject, Object newPrimaryKey) throws DBSerializerException, IllegalAccessException, DBSerializerPrimaryKeyMissingException {
+    public static void setPrimaryKey(Object dbObject, Object newPrimaryKey) throws DBSerializerException, IllegalAccessException, DBDeserializerPrimaryKeyMissingException {
         // Check if DBSerializable
         DBSerializationValidator.checkSerializable(dbObject);
 
-        // Loop through fields in dbObject until one where primaryKey is true is found, then set it to the object
+        // Loop through fields in dbObject until one where isPrimaryKey is true is found, then set it to the object
         for (Field field: dbObject.getClass().getDeclaredFields()) {
             field.setAccessible(true);
 
             if (field.isAnnotationPresent(DBColumn.class)) {
-                if (field.getAnnotation(DBColumn.class).primaryKey()) {
+                if (field.getAnnotation(DBColumn.class).isPrimaryKey()) {
                     field.set(dbObject, newPrimaryKey);
                     return;
                 }
             }
         }
 
-        throw new DBSerializerPrimaryKeyMissingException("Could not find primary key when attempting to setPrimaryKey in DBDeserializer");
+        // If none found, throw exception
+        throw new DBDeserializerPrimaryKeyMissingException("Could not find primary key when attempting to setPrimaryKey in DBDeserializer");
+    }
+
+    public static void setForeignKey(Object dbSubObject, String foreignKeyName, Object value) throws DBSerializerException, IllegalAccessException, DBDeserializerForeignKeyMissingException {
+        // Check if DBSerializable
+        DBSerializationValidator.checkSerializable(dbSubObject);
+
+        // Loop through fields in dbSubObject where DBColumn annotation isForeignKey is true and its DBColumn annotation name matches foreignKeyName and set to value and return
+        for (Field field: dbSubObject.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+
+            if (field.isAnnotationPresent(DBColumn.class)) {
+                DBColumn fieldDBColumnAnnotation = field.getAnnotation(DBColumn.class);
+                if (fieldDBColumnAnnotation.isForeignKey() && fieldDBColumnAnnotation.name().equals(foreignKeyName)) {
+                    field.set(dbSubObject, value);
+                    return;
+                }
+             }
+        }
+
+        throw new DBDeserializerForeignKeyMissingException("Could not find foreign key when attempting to setForeignKey in DBDeserializer");
     }
 
 //    public static Object createObjectFromMap(Class targetDBClass, Map<String, Object> tableMap) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, DBSerializerException {

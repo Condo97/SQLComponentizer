@@ -1,5 +1,8 @@
 package sqlcomponentizer.dbserializer;
 
+import sqlcomponentizer.dbserializer.exception.DBSerializerException;
+import sqlcomponentizer.dbserializer.exception.DBDeserializerPrimaryKeyMissingException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,37 +13,77 @@ import java.util.Map;
 
 public class DBSerializer {
 
-    public static Object getPrimaryKey(Object dbObject) throws DBSerializerException, IllegalAccessException, DBSerializerPrimaryKeyMissingException {
+    public static Object getPrimaryKey(Object dbObject) throws DBSerializerException, IllegalAccessException, DBDeserializerPrimaryKeyMissingException {
         // Check if DBSerializable
         DBSerializationValidator.checkSerializable(dbObject);
 
-        // Check each declared field until one is found with DBColumn.primaryKey() == true
+        // Create an object for primaryKey which will be used to check if there are multiple primary keys and for the return value if there are no primary keys
+        Object primaryKey = null;
+
+        // Check each declared field until one is found with DBColumn.isPrimaryKey()
         for (Field field: dbObject.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             if (field.isAnnotationPresent(DBColumn.class)) {
-                if (field.getAnnotation(DBColumn.class).primaryKey())
-                    return field.get(dbObject);
+                if (field.getAnnotation(DBColumn.class).isPrimaryKey()) {
+                    if (primaryKey != null)
+                        throw new DBSerializerException("Multiple primary keys found for object " + dbObject);
+
+                    primaryKey = field.get(dbObject);
+                }
             }
         }
 
-        throw new DBSerializerPrimaryKeyMissingException("No primary key found when trying to getPrimaryKey in DBSerializer!");
+        throw new DBDeserializerPrimaryKeyMissingException("No primary key found when trying to getPrimaryKey in DBSerializer!");
     }
 
-    public static String getPrimaryKeyName(Class<?> dbClass) throws DBSerializerException, DBSerializerPrimaryKeyMissingException {
+    public static String getPrimaryKeyName(Class<?> dbClass) throws DBSerializerException, DBDeserializerPrimaryKeyMissingException {
+        // Check if DBSerializable
         DBSerializationValidator.checkSerializable(dbClass);
-        Field[] var1 = dbClass.getDeclaredFields();
-        int var2 = var1.length;
 
-        for(int var3 = 0; var3 < var2; ++var3) {
-            Field field = var1[var3];
+        // Create an object for primaryKeyName which will be used to check if there are multiple primary keys and for the return value if there are no primary keys
+        String primaryKeyName = null;
+
+        // Check each declared field until one is found with DBColumn.isPrimaryKey()
+        for (Field field: dbClass.getDeclaredFields()) {
             field.setAccessible(true);
             if (field.isAnnotationPresent(DBColumn.class)) {
-                if (field.getAnnotation(DBColumn.class).primaryKey())
-                    return field.getAnnotation(DBColumn.class).name();
+                DBColumn annotation = field.getAnnotation(DBColumn.class);
+
+                if (annotation.isPrimaryKey()) {
+                    if (primaryKeyName != null)
+                        throw new DBSerializerException("Multiple primary keys found for object " + dbClass);
+
+                    primaryKeyName = annotation.name();
+                }
             }
         }
 
-        throw new DBSerializerPrimaryKeyMissingException("No primary key found when trying to getPrimaryKey in DBSerializer!");
+        return primaryKeyName;
+    }
+
+    public static List<String> getForeignKeyNames(Class<?> dbClass) throws DBSerializerException {
+        // Check if DBSerializable
+        DBSerializationValidator.checkSerializable(dbClass);
+
+        // Create foreignKeyNames list
+        List<String> foreignKeyNames = new ArrayList<>();
+
+        // Check each declared field until one is found with DBColumn.isForeignKey()
+        for (Field field: dbClass.getDeclaredFields()) {
+            field.setAccessible(true);
+            if (field.isAnnotationPresent(DBColumn.class)) {
+                DBColumn annotation = field.getAnnotation(DBColumn.class);
+                if (annotation.isForeignKey()) {
+                    // Either add foreignKeyName from foreignKeyReferecnes in annotation if not blank or from field name if blank
+                    if (!annotation.foreignKeyReferences().isBlank())
+                        foreignKeyNames.add(annotation.foreignKeyReferences());
+                    else
+                        foreignKeyNames.add(annotation.name());
+                }
+            }
+        }
+
+        return foreignKeyNames;
     }
 
     public static String getTableName(Class<?> dbClass) throws DBSerializerException {
@@ -86,13 +129,61 @@ public class DBSerializer {
 
         // Check each declared field for DBSubObject annotation and add each field's object to the subObjects list
         for (Field field: dbObject.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
             if (field.isAnnotationPresent(DBSubObject.class)) {
+                field.setAccessible(true);
+
                 subObjects.add(field.get(dbObject));
             }
         }
 
         return subObjects;
+    }
+
+    public static List<Class<?>> getSubObjectClasses(Class<?> dbClass) throws DBSerializerException {
+        // Check if DBSerializable
+        DBSerializationValidator.checkSerializable(dbClass);
+
+        // Create sub object class list
+        List<Class<?>> subObjectClasses = new ArrayList<>();
+
+        // Check each declared field for DBSubObject annotation and add each field's class to the subObjectClasses list
+        for (Field field: dbClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(DBSubObject.class)) {
+                subObjectClasses.add(field.getType());
+            }
+        }
+
+        return subObjectClasses;
+    }
+
+    public static Class<?> getSubObjectClass(Class<?> dbClass, String name) throws DBSerializerException {
+        // Check if DBSerializable
+        DBSerializationValidator.checkSerializable(dbClass);
+
+        // Check each declared field for DBSubObject annotation and return the getType of the first field that's name matches name
+        for (Field field: dbClass.getDeclaredFields())
+            if (field.isAnnotationPresent(DBSubObject.class))
+                if (field.getName().equals(name))
+                    return field.getType();
+
+        throw new DBSerializerException("Could not find subObject class for given name–" + name + "–in given dbClass–" + dbClass + "–!");
+    }
+
+    public static List<String> getSubObjectNames(Class<?> dbClass) throws DBSerializerException {
+        // Check if DBSerializable
+        DBSerializationValidator.checkSerializable(dbClass);
+
+        // Create sub object name list
+        List<String> subObjectNames = new ArrayList<>();
+
+        // Check each declared field for DBSubObject annotation and add each field's name to the subObjectClasses list
+        for (Field field: dbClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(DBSubObject.class)) {
+                subObjectNames.add(field.getName());
+            }
+        }
+
+        return subObjectNames;
     }
 
     private static Object getDBEnumGetterValue(Object toGetObject) throws InvocationTargetException, IllegalAccessException {

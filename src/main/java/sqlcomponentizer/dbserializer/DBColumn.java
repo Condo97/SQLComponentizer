@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
 public @interface DBColumn {
 
     String name();
-    boolean primaryKey() default false;
+    boolean isPrimaryKey() default false;
+    boolean isForeignKey() default false;
+    String foreignKeyReferences() default "";
 
 }
