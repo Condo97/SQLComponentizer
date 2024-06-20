@@ -23,7 +23,7 @@ public class Count {
 
     @Override
     public String toString() {
-        return action + SQLTokens.SPACE + SQLTokens.OPEN_PARENTHESES + (distinct ? distinctString + SQLTokens.SPACE : "") + column + SQLTokens.CLOSE_PARENTHESES;
+        return action + SQLTokens.OPEN_PARENTHESES + (distinct ? distinctString + SQLTokens.SPACE : "") + column + SQLTokens.CLOSE_PARENTHESES;
     }
 
 }
