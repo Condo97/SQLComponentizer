@@ -58,9 +58,14 @@ public class  SelectComponentizedPreparedStatementBuilder implements Componentiz
 
     /* DISTINCT */
 
-    public SelectComponentizedPreparedStatementBuilder distinct() {
+    public SelectComponentizedPreparedStatementBuilder distinct(Boolean isDistinct) {
         // TODO: Is this a good way to do this lol
-        distinctComponent = new DistinctComponent();
+        if (isDistinct) {
+            distinctComponent = new DistinctComponent();
+        } else {
+            distinctComponent = null;
+        }
+
         return this;
     }
 
