@@ -9,6 +9,12 @@ public class Count extends ParenthesizedString {
 
     private Boolean distinct;
 
+    public Count(String string) {
+        super(string);
+
+        distinct = false;
+    }
+
     public Count(String column, Boolean distinct) {
         super(column);
         this.distinct = distinct;
