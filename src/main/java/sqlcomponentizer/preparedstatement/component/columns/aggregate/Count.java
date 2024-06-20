@@ -1,32 +1,29 @@
 package sqlcomponentizer.preparedstatement.component.columns.aggregate;
 
-import sqlcomponentizer.preparedstatement.utility.ParenthesizedString;
+import sqlcomponentizer.preparedstatement.SQLTokens;
 
-public class Count extends ParenthesizedString {
+public class Count {
 
     private final String action = "COUNT";
     private final String distinctString = "DISTINCT";
 
+    private String column;
     private Boolean distinct;
 
-    public Count(String string) {
-        super(string);
+    public Count(String column) {
+        this.column = column;
 
         distinct = false;
     }
 
     public Count(String column, Boolean distinct) {
-        super(column);
+        this.column = column;
         this.distinct = distinct;
     }
 
     @Override
     public String toString() {
-        // TODO: This is less concise than it was previously, is there a way to make it more concise?
-        if (distinct) {
-            return distinctString + action + super.toString();
-        } else {
-            return action + super.toString();
-        }
+        return action + SQLTokens.SPACE + SQLTokens.OPEN_PARENTHESES + (distinct ? distinctString + SQLTokens.SPACE : "") + column + SQLTokens.CLOSE_PARENTHESES;
     }
+
 }

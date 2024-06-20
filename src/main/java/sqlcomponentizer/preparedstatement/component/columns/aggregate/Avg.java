@@ -1,17 +1,19 @@
 package sqlcomponentizer.preparedstatement.component.columns.aggregate;
 
-import sqlcomponentizer.preparedstatement.utility.ParenthesizedString;
+import sqlcomponentizer.preparedstatement.SQLTokens;
 
-public class Avg extends ParenthesizedString {
+public class Avg {
 
     private final String action = "AVG";
 
+    private String column;
+
     public Avg(String column) {
-        super(column);
+        this.column = column;
     }
 
     @Override
     public String toString() {
-        return action + super.toString();
+        return action + SQLTokens.OPEN_PARENTHESES + column + SQLTokens.CLOSE_PARENTHESES;
     }
 }
