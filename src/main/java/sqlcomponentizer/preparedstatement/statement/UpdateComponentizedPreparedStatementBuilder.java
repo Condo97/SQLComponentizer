@@ -47,13 +47,23 @@ public class UpdateComponentizedPreparedStatementBuilder implements Componentize
 
     /* WHERE TODO: - These are repeated from SelectComponentizedPreparedStatementBuilder */
 
+
     public UpdateComponentizedPreparedStatementBuilder where(String columnName, SQLOperators operator, Object value) {
-        whereComponent.addCondition(new SQLOperatorCondition(columnName, operator, value));
-        return this;
+//        whereComponent.addCondition(new SQLOperatorCondition(columnName, operator, value)); TODO: Omg what is this why was this here
+        return where(Map.of(
+                columnName, value
+        ), operator);
     }
 
-    public UpdateComponentizedPreparedStatementBuilder where(Map<String, Object> columnValueMap, SQLOperators opertorForAll) {
-        columnValueMap.forEach((k, v) -> whereComponent.addCondition(new SQLOperatorCondition(k, opertorForAll, v)));
+    public UpdateComponentizedPreparedStatementBuilder where(Map<String, Object> columnValueMap, SQLOperators operatorForAll) {
+        List<PSComponent> componentList = new ArrayList<>();
+        columnValueMap.forEach((k,v) -> componentList.add(new SQLOperatorCondition(k, operatorForAll, v)));
+
+        return where(componentList);
+    }
+
+    public UpdateComponentizedPreparedStatementBuilder where(List<PSComponent> sqlConditions) {
+        whereComponent.addConditions(sqlConditions);
         return this;
     }
 

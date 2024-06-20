@@ -16,14 +16,16 @@ public class  SelectComponentizedPreparedStatementBuilder implements Componentiz
     // This class basically assures that the components are in order for the SimplePreparedStatement and acts as a builder
 
     private SelectComponent selectComponent;
+    private DistinctComponent distinctComponent;
     private FromComponent fromComponent;
     private InnerJoinComponent innerJoinComponent;
     private WhereComponent whereComponent;
     private OrderByComponent orderByComponent;
     private LimitComponent limitComponent;
 
-    private SelectComponentizedPreparedStatementBuilder(SelectComponent selectComponent, FromComponent fromComponent, InnerJoinComponent innerJoinComponent, WhereComponent whereComponent, OrderByComponent orderByComponent, LimitComponent limitComponent) {
+    private SelectComponentizedPreparedStatementBuilder(SelectComponent selectComponent, DistinctComponent distinctComponent, FromComponent fromComponent, InnerJoinComponent innerJoinComponent, WhereComponent whereComponent, OrderByComponent orderByComponent, LimitComponent limitComponent) {
         this.selectComponent = selectComponent;
+        this.distinctComponent = distinctComponent;
         this.fromComponent = fromComponent;
         this.innerJoinComponent = innerJoinComponent;
         this.whereComponent = whereComponent;
@@ -34,6 +36,7 @@ public class  SelectComponentizedPreparedStatementBuilder implements Componentiz
     public static SelectComponentizedPreparedStatementBuilder forTable(String tableName) {
         return new SelectComponentizedPreparedStatementBuilder(
                 new SelectComponent(),
+                null,
                 new FromComponent(tableName),
                 new InnerJoinComponent(tableName),
                 new WhereComponent(),
@@ -50,6 +53,14 @@ public class  SelectComponentizedPreparedStatementBuilder implements Componentiz
 
     public SelectComponentizedPreparedStatementBuilder select(List<String> columnNames) {
         selectComponent.getColumns().addAll(columnNames);
+        return this;
+    }
+
+    /* DISTINCT */
+
+    public SelectComponentizedPreparedStatementBuilder distinct() {
+        // TODO: Is this a good way to do this lol
+        distinctComponent = new DistinctComponent();
         return this;
     }
 
