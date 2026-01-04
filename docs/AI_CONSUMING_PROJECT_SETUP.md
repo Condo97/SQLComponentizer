@@ -60,3 +60,4 @@ Run `./gradlew build` to verify the dependency resolves correctly.
 - Artifact ID: `SQLComponentizer`
 - Current version: `1.0.0`
 
+
