@@ -35,6 +35,9 @@ tasks.named('test') {
 publishing {
     publications {
         gpr(MavenPublication) {
+            groupId = 'io.github.condo97'
+            artifactId = 'sqlcomponentizer'
+            
             from components.java
             
             pom {
